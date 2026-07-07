@@ -1,0 +1,98 @@
+{% extends 'social/app_base.html' %}
+{% load static %}
+{% block title %}Home — ConnectHub{% endblock %}
+
+{% block main %}
+<div class="feed-column">
+
+  <!-- Feed header -->
+  <div class="feed-header">
+    <span class="feed-title">Home</span>
+    <button class="theme-toggle">☀️</button>
+  </div>
+
+  <!-- Composer -->
+  <div class="composer">
+    <form method="post" action="{% url 'create_post' %}" enctype="multipart/form-data" id="postForm">
+      {% csrf_token %}
+      <div class="composer-row">
+        <img src="{{ request.user.profile.profile_image.url }}" alt="" class="composer-avatar" onerror="this.src='{% static 'images/default.png' %}'">
+        <div style="flex:1">
+          {{ post_form.content }}
+        </div>
+      </div>
+      <!-- Image preview -->
+      <div class="image-preview-wrap">
+        <img src="" alt="Preview">
+        <button type="button" class="remove-image-btn">✕</button>
+      </div>
+      <div class="composer-actions">
+        <div class="composer-tools">
+          <button type="button" class="tool-btn" title="Add image" onclick="triggerImageInput()">📷</button>
+          <div style="display:none">{{ post_form.image }}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span class="char-count">0 / 2000</span>
+          <button type="submit" class="btn btn-primary btn-sm">Post</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Posts -->
+  {% if posts %}
+    {% for post in posts %}
+    {% include 'social/post_card.html' with post=post %}
+    {% endfor %}
+
+    <!-- Pagination -->
+    {% if posts.has_other_pages %}
+    <div class="pagination">
+      {% if posts.has_previous %}
+      <a href="?page={{ posts.previous_page_number }}" class="page-btn">← Prev</a>
+      {% endif %}
+      <span class="page-btn active">{{ posts.number }} / {{ posts.paginator.num_pages }}</span>
+      {% if posts.has_next %}
+      <a href="?page={{ posts.next_page_number }}" class="page-btn">Next →</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">🌱</div>
+    <div class="empty-title">Your feed is empty</div>
+    <div class="empty-desc">Follow people to see their posts here, or create your first post above.</div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block aside %}
+<div class="aside-title">Who to follow</div>
+{% if suggested_users %}
+  {% for user in suggested_users %}
+  <div class="suggested-item">
+    <a href="{% url 'profile' username=user.username %}">
+      <img src="{{ user.profile.profile_image.url }}" alt="" class="suggested-avatar" onerror="this.src='{% static 'images/default.png' %}'">
+    </a>
+    <div class="suggested-info">
+      <a href="{% url 'profile' username=user.username %}">
+        <div class="suggested-name">{{ user.get_full_name|default:user.username }}</div>
+        <div class="suggested-handle">@{{ user.username }}</div>
+      </a>
+    </div>
+    <button class="btn btn-primary btn-sm follow-btn" data-username="{{ user.username }}">Follow</button>
+  </div>
+  {% endfor %}
+{% else %}
+  <p style="font-size:0.85rem;color:var(--text-muted)">You're following everyone! ✓</p>
+{% endif %}
+
+<hr class="divider" style="margin-top:24px">
+<div style="font-size:0.78rem; color:var(--text-muted); line-height:1.8">
+  <a href="{% url 'edit_profile' %}" style="color:var(--accent)">Settings</a> ·
+  <a href="{% url 'logout' %}" style="color:var(--accent)">Logout</a>
+  <br><br>© 2025 ConnectHub
+</div>
+{% endblock %}

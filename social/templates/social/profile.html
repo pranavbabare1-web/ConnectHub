@@ -1,0 +1,115 @@
+{% extends 'social/app_base.html' %}
+{% load static social_tags %}
+{% block title %}{{ profile_user.username }} — ConnectHub{% endblock %}
+
+{% block main %}
+<div style="max-width:680px;margin:0 auto;padding:24px 16px">
+
+  <div class="profile-card">
+    <!-- Cover -->
+    <div class="profile-cover">
+      {% if profile_user.profile.cover_image %}
+      <img src="{{ profile_user.profile.cover_image.url }}" alt="Cover">
+      {% endif %}
+    </div>
+
+    <!-- Info -->
+    <div class="profile-info-section">
+      <div class="profile-top-row">
+        <div class="profile-avatar-wrap">
+          <img src="{{ profile_user.profile.profile_image.url }}" alt="" class="profile-avatar-large" onerror="this.src='{% static 'images/default.png' %}'">
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          {% if profile_user == request.user %}
+          <a href="{% url 'edit_profile' %}" class="btn btn-outline btn-sm">Edit Profile</a>
+          {% else %}
+          {% with is_following=request.user|is_following:profile_user %}
+          <button class="btn follow-btn btn-sm {% if is_following %}btn-outline following{% else %}btn-primary{% endif %}"
+                  data-username="{{ profile_user.username }}">
+            {% if is_following %}Following{% else %}Follow{% endif %}
+          </button>
+          {% endwith %}
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="profile-names">
+        <div class="profile-fullname">{{ profile_user.get_full_name|default:profile_user.username }}</div>
+        <div class="profile-username-display">@{{ profile_user.username }}</div>
+      </div>
+
+      {% if profile_user.profile.bio %}
+      <p class="profile-bio" style="margin-top:12px">{{ profile_user.profile.bio }}</p>
+      {% endif %}
+
+      <div class="profile-meta" style="margin-top:10px">
+        {% if profile_user.profile.location %}
+        <span>📍 {{ profile_user.profile.location }}</span>
+        {% endif %}
+        {% if profile_user.profile.website %}
+        <span>🔗 <a href="{{ profile_user.profile.website }}" target="_blank" style="color:var(--accent)">{{ profile_user.profile.website }}</a></span>
+        {% endif %}
+        <span>📅 Joined {{ profile_user.profile.created_at|date:"M Y" }}</span>
+      </div>
+
+      <div class="profile-stats">
+        <div class="stat">
+          <a href="{% url 'followers_list' username=profile_user.username %}">
+            <span class="stat-value follower-count-display">{{ followers }}</span>
+            <span class="stat-label">Followers</span>
+          </a>
+        </div>
+        <div class="stat">
+          <a href="{% url 'following_list' username=profile_user.username %}">
+            <span class="stat-value">{{ following }}</span>
+            <span class="stat-label">Following</span>
+          </a>
+        </div>
+        <div class="stat">
+          <span class="stat-value">{{ profile_user.profile.get_posts_count }}</span>
+          <span class="stat-label">Posts</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-tabs">
+      <div class="profile-tab active">Posts</div>
+    </div>
+  </div>
+
+  <!-- Posts -->
+  <div style="margin-top:20px">
+    {% for post in posts %}
+    {% include 'social/post_card.html' with post=post %}
+    {% empty %}
+    <div class="empty-state">
+      <div class="empty-icon">✍️</div>
+      <div class="empty-title">No posts yet</div>
+      <div class="empty-desc">
+        {% if profile_user == request.user %}
+        Share your first post from the home feed.
+        {% else %}
+        {{ profile_user.username }} hasn't posted anything yet.
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block aside %}
+<div class="aside-title">About</div>
+<div style="font-size:0.88rem;line-height:2;color:var(--text-secondary)">
+  {% if profile_user.profile.bio %}
+  <p style="margin-bottom:12px;color:var(--text-primary)">{{ profile_user.profile.bio }}</p>
+  {% endif %}
+  {% if profile_user.profile.location %}
+  <div>📍 {{ profile_user.profile.location }}</div>
+  {% endif %}
+  {% if profile_user.profile.website %}
+  <div>🔗 <a href="{{ profile_user.profile.website }}" target="_blank" style="color:var(--accent)">Website</a></div>
+  {% endif %}
+  <div>💜 {{ profile_user.profile.get_total_likes }} total likes</div>
+</div>
+{% endblock %}

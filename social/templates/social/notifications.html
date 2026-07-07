@@ -1,0 +1,46 @@
+{% extends 'social/app_base.html' %}
+{% load static %}
+{% block title %}Notifications — ConnectHub{% endblock %}
+
+{% block main %}
+<div style="max-width:680px;margin:0 auto;padding:24px 16px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <h1 style="font-family:'Sora',sans-serif;font-size:1.4rem;font-weight:700">Notifications</h1>
+    <button class="theme-toggle">☀️</button>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+    {% if notifications %}
+      {% for notif in notifications %}
+      <div class="notif-item {% if not notif.is_read %}unread{% endif %}">
+        <a href="{% url 'profile' username=notif.sender.username %}">
+          <img src="{{ notif.sender.profile.profile_image.url }}" alt="" class="notif-avatar" onerror="this.src='{% static 'images/default.png' %}'">
+        </a>
+        <div class="notif-content">
+          <div class="notif-text">
+            <a href="{% url 'profile' username=notif.sender.username %}"><strong>{{ notif.sender.username }}</strong></a>
+            {% if notif.notification_type == 'follow' %}
+              started following you.
+            {% elif notif.notification_type == 'like' %}
+              liked your post.
+            {% elif notif.notification_type == 'comment' %}
+              commented on your post.
+            {% endif %}
+          </div>
+          <div class="notif-time">{{ notif.created_at|timesince }} ago</div>
+        </div>
+        {% if notif.post and notif.post.image %}
+        <img src="{{ notif.post.image.url }}" alt="" class="notif-post-thumb">
+        {% endif %}
+      </div>
+      {% endfor %}
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🔔</div>
+      <div class="empty-title">No notifications yet</div>
+      <div class="empty-desc">When people like, comment on, or follow you — it'll show up here.</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'social/base.html' %}
+{% block title %}ConnectHub — Share Your World{% endblock %}
+
+{% block body %}
+<div class="landing-hero">
+  <div class="landing-content">
+    <div class="landing-logo-large">ConnectHub</div>
+    <p class="landing-tagline">A place to share ideas, follow creators,<br>and build your community.</p>
+    <div class="landing-cta">
+      <a href="{% url 'register' %}" class="btn btn-primary" style="font-size:1rem; padding: 12px 32px;">Get Started — Free</a>
+      <a href="{% url 'login' %}" class="btn btn-outline" style="font-size:1rem; padding: 12px 32px;">Sign In</a>
+    </div>
+
+    <div class="landing-features">
+      <div class="feature-chip">
+        <div class="feature-icon">✍️</div>
+        <div class="feature-title">Post Anything</div>
+        <div class="feature-desc">Share your thoughts, photos, and moments with the people that matter.</div>
+      </div>
+      <div class="feature-chip">
+        <div class="feature-icon">🌐</div>
+        <div class="feature-title">Follow Creators</div>
+        <div class="feature-desc">Curate your feed by following people whose work inspires you.</div>
+      </div>
+      <div class="feature-chip">
+        <div class="feature-icon">🔔</div>
+        <div class="feature-title">Stay in the Loop</div>
+        <div class="feature-desc">Likes, comments, and follows — know the moment something happens.</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

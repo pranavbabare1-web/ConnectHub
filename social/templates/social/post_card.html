@@ -1,0 +1,77 @@
+{% load static social_tags %}
+<div class="post-card" id="post-{{ post.id }}">
+  <div class="post-header">
+    <a href="{% url 'profile' username=post.user.username %}">
+      <img src="{{ post.user.profile.profile_image.url }}" alt="" class="post-avatar" onerror="this.src='{% static 'images/default.png' %}'">
+    </a>
+    <div class="post-user-info">
+      <div class="post-username">
+        <a href="{% url 'profile' username=post.user.username %}">{{ post.user.get_full_name|default:post.user.username }}</a>
+        <span style="font-weight:400;color:var(--text-muted);font-size:0.83rem"> @{{ post.user.username }}</span>
+      </div>
+      <div class="post-time">{{ post.created_at|timesince }} ago</div>
+    </div>
+    {% if post.user == request.user %}
+    <div class="post-menu">
+      <form method="post" action="{% url 'delete_post' post_id=post.id %}" style="display:inline" onsubmit="return confirm('Delete this post?')">
+        {% csrf_token %}
+        <button type="submit" class="menu-btn" title="Delete post">🗑️</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="post-content">{{ post.content }}</div>
+
+  {% if post.image %}
+  <img src="{{ post.image.url }}" alt="Post image" class="post-image" loading="lazy">
+  {% endif %}
+
+  <div class="post-actions">
+    {% if request.user.is_authenticated %}
+    {% with liked=post|is_liked_by:request.user %}
+    <button class="action-btn like-btn {% if liked %}liked{% endif %}" data-post-id="{{ post.id }}">
+      <span class="like-icon">{% if liked %}❤️{% else %}🤍{% endif %}</span>
+      <span class="like-count">{{ post.get_likes_count }}</span>
+    </button>
+    {% endwith %}
+    {% endif %}
+
+    <button class="action-btn comment-toggle-btn" data-post-id="{{ post.id }}">
+      <span class="action-icon">💬</span>
+      <span class="comment-count">{{ post.get_comments_count }}</span>
+    </button>
+  </div>
+
+  <div class="comments-section" id="comments-{{ post.id }}">
+    {% for comment in post.comments.all %}
+    <div class="comment-item" id="comment-item-{{ comment.id }}">
+      <img src="{{ comment.user.profile.profile_image.url }}" alt="" class="comment-avatar" onerror="this.src='{% static 'images/default.png' %}'">
+      <div class="comment-body">
+        <div class="comment-meta">
+          <a href="{% url 'profile' username=comment.user.username %}" class="comment-username">{{ comment.user.username }}</a>
+          <span class="comment-time">{{ comment.created_at|timesince }} ago</span>
+          {% if comment.user == request.user %}
+          <button class="comment-del" data-comment-id="{{ comment.id }}" data-post-id="{{ post.id }}"
+                  onclick="deleteCommentById({{ comment.id }}, {{ post.id }}, this)">✕</button>
+          {% endif %}
+        </div>
+        <p class="comment-text">{{ comment.text }}</p>
+      </div>
+    </div>
+    {% empty %}
+    <p style="font-size:0.83rem;color:var(--text-muted);padding:8px 0">No comments yet — be first!</p>
+    {% endfor %}
+
+    {% if request.user.is_authenticated %}
+    <div class="comment-form-row">
+      <img src="{{ request.user.profile.profile_image.url }}" alt="" class="comment-avatar" style="width:30px;height:30px" onerror="this.src='{% static 'images/default.png' %}'">
+      <form class="comment-form" data-post-id="{{ post.id }}" style="display:flex;flex:1;gap:8px">
+        {% csrf_token %}
+        <input type="text" class="comment-input" placeholder="Write a comment..." maxlength="500">
+        <button type="submit" class="comment-submit-btn">&#8594;</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+</div>

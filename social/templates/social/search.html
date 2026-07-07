@@ -1,0 +1,65 @@
+{% extends 'social/app_base.html' %}
+{% load static social_tags %}
+{% block title %}Search — ConnectHub{% endblock %}
+
+{% block main %}
+<div style="max-width:680px;margin:0 auto;padding:24px 16px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <h1 style="font-family:'Sora',sans-serif;font-size:1.4rem;font-weight:700">Search</h1>
+    <button class="theme-toggle">☀️</button>
+  </div>
+
+  <form method="get" action="{% url 'search' %}">
+    <div class="search-bar-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" name="q" class="search-input" placeholder="Search for people..." value="{{ query }}" autofocus>
+    </div>
+  </form>
+
+  {% if query %}
+  <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px">
+    {% if users %}{{ users|length }} result{% if users|length != 1 %}s{% endif %} for "{{ query }}"
+    {% else %}No results for "{{ query }}"{% endif %}
+  </p>
+  {% endif %}
+
+  {% if users %}
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+    {% for user in users %}
+    <div class="user-result-item">
+      <a href="{% url 'profile' username=user.username %}">
+        <img src="{{ user.profile.profile_image.url }}" alt="" class="result-avatar" onerror="this.src='{% static 'images/default.png' %}'">
+      </a>
+      <div class="result-info">
+        <a href="{% url 'profile' username=user.username %}">
+          <div class="result-name">{{ user.get_full_name|default:user.username }}</div>
+          <div class="result-username">@{{ user.username }}</div>
+        </a>
+        {% if user.profile.bio %}
+        <div style="font-size:0.82rem;color:var(--text-muted);margin-top:2px">{{ user.profile.bio|truncatechars:60 }}</div>
+        {% endif %}
+      </div>
+      {% with is_following=request.user|is_following:user %}
+      <button class="btn follow-btn btn-sm {% if is_following %}btn-outline following{% else %}btn-primary{% endif %}"
+              data-username="{{ user.username }}">
+        {% if is_following %}Following{% else %}Follow{% endif %}
+      </button>
+      {% endwith %}
+    </div>
+    {% endfor %}
+  </div>
+  {% elif query %}
+  <div class="empty-state">
+    <div class="empty-icon">🔍</div>
+    <div class="empty-title">No users found</div>
+    <div class="empty-desc">Try a different name or username.</div>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">👥</div>
+    <div class="empty-title">Find people on ConnectHub</div>
+    <div class="empty-desc">Search by name or username to discover and follow people.</div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

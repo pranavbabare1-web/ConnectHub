@@ -1,0 +1,41 @@
+{% extends 'social/app_base.html' %}
+{% load static social_tags %}
+{% block title %}{{ profile_user.username }} Following — ConnectHub{% endblock %}
+
+{% block main %}
+<div style="max-width:600px;margin:0 auto;padding:24px 16px">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+    <a href="{% url 'profile' username=profile_user.username %}" class="btn btn-outline btn-sm">← Back</a>
+    <h1 style="font-family:'Sora',sans-serif;font-size:1.3rem;font-weight:700">@{{ profile_user.username }} Following</h1>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)">
+    {% for follow in following %}
+    <div class="user-list-item" style="padding:14px 16px">
+      <a href="{% url 'profile' username=follow.following.username %}">
+        <img src="{{ follow.following.profile.profile_image.url }}" alt="" class="user-list-avatar" onerror="this.src='{% static 'images/default.png' %}'">
+      </a>
+      <div class="user-list-info">
+        <a href="{% url 'profile' username=follow.following.username %}">
+          <div class="user-list-name">{{ follow.following.get_full_name|default:follow.following.username }}</div>
+          <div class="user-list-handle">@{{ follow.following.username }}</div>
+        </a>
+      </div>
+      {% if follow.following != request.user %}
+      {% with is_following=request.user|is_following:follow.following %}
+      <button class="btn follow-btn btn-sm {% if is_following %}btn-outline following{% else %}btn-primary{% endif %}"
+              data-username="{{ follow.following.username }}">
+        {% if is_following %}Following{% else %}Follow{% endif %}
+      </button>
+      {% endwith %}
+      {% endif %}
+    </div>
+    {% empty %}
+    <div class="empty-state">
+      <div class="empty-icon">👥</div>
+      <div class="empty-title">Not following anyone yet</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

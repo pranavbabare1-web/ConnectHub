@@ -1,0 +1,80 @@
+{% extends 'social/app_base.html' %}
+{% load static %}
+{% block title %}Edit Profile — ConnectHub{% endblock %}
+
+{% block main %}
+<div class="settings-container">
+  <div class="settings-header">
+    <h1 class="settings-title">Settings</h1>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-top:4px">Manage your profile and account settings.</p>
+  </div>
+
+  <div class="settings-card">
+    <div class="settings-section-title">Profile Information</div>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          {{ form.first_name }}
+          {% if form.first_name.errors %}<div class="form-error">{{ form.first_name.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          {{ form.last_name }}
+          {% if form.last_name.errors %}<div class="form-error">{{ form.last_name.errors.0 }}</div>{% endif %}
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Bio</label>
+        {{ form.bio }}
+        {% if form.bio.errors %}<div class="form-error">{{ form.bio.errors.0 }}</div>{% endif %}
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Location</label>
+          {{ form.location }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Website</label>
+          {{ form.website }}
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Profile Picture</label>
+        {% if request.user.profile.profile_image %}
+        <div style="margin-bottom:8px">
+          <img src="{{ request.user.profile.profile_image.url }}" alt="" style="width:64px;height:64px;border-radius:50%;object-fit:cover;">
+        </div>
+        {% endif %}
+        {{ form.profile_image }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cover Photo</label>
+        {% if request.user.profile.cover_image %}
+        <div style="margin-bottom:8px">
+          <img src="{{ request.user.profile.cover_image.url }}" alt="" style="width:100%;height:80px;object-fit:cover;border-radius:8px;">
+        </div>
+        {% endif %}
+        {{ form.cover_image }}
+      </div>
+      <div style="display:flex;gap:12px;margin-top:8px">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{% url 'profile' username=request.user.username %}" class="btn btn-outline">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="settings-card">
+    <div class="settings-section-title">Security</div>
+    <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px">Update your password to keep your account secure.</p>
+    <a href="{% url 'change_password' %}" class="btn btn-outline">Change Password</a>
+  </div>
+
+  <div class="settings-card" style="border-color:rgba(255,107,107,0.2)">
+    <div class="settings-section-title" style="color:var(--coral)">Danger Zone</div>
+    <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px">These actions are permanent and cannot be undone.</p>
+    <a href="{% url 'logout' %}" class="btn btn-coral btn-sm">Log Out</a>
+  </div>
+</div>
+{% endblock %}

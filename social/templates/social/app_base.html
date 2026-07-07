@@ -1,0 +1,90 @@
+{% extends 'social/base.html' %}
+{% load static %}
+
+{% block body %}
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">⚡</div>
+      <span>ConnectHub</span>
+    </div>
+
+    <ul class="nav-list">
+      <li class="nav-item">
+        <a href="{% url 'home' %}" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>
+          <span class="nav-icon">🏠</span> Home
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{% url 'search' %}" {% if request.resolver_match.url_name == 'search' %}class="active"{% endif %}>
+          <span class="nav-icon">🔍</span> Search
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{% url 'notifications' %}" {% if request.resolver_match.url_name == 'notifications' %}class="active"{% endif %}>
+          <span class="nav-icon">🔔</span> Notifications
+          {% if unread_notifications_count > 0 %}
+          <span class="nav-badge">{{ unread_notifications_count }}</span>
+          {% endif %}
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{% url 'profile' username=request.user.username %}" {% if request.resolver_match.url_name == 'profile' %}class="active"{% endif %}>
+          <span class="nav-icon">👤</span> Profile
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{% url 'edit_profile' %}" {% if request.resolver_match.url_name == 'edit_profile' %}class="active"{% endif %}>
+          <span class="nav-icon">⚙️</span> Settings
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{% url 'logout' %}">
+          <span class="nav-icon">🚪</span> Log Out
+        </a>
+      </li>
+    </ul>
+
+    <!-- User card -->
+    <a href="{% url 'profile' username=request.user.username %}" class="sidebar-user" style="text-decoration:none">
+      <img src="{{ request.user.profile.profile_image.url }}" alt="" class="sidebar-avatar" onerror="this.src='{% static 'images/default.png' %}'">
+      <div class="sidebar-user-info">
+        <div class="sidebar-username">{{ request.user.get_full_name|default:request.user.username }}</div>
+        <div class="sidebar-handle">@{{ request.user.username }}</div>
+      </div>
+      <button class="theme-toggle" title="Toggle theme" onclick="event.preventDefault(); toggleTheme();">☀️</button>
+    </a>
+  </aside>
+
+  <!-- Main content -->
+  <main style="padding: 0 0 40px;">
+    {% block main %}{% endblock %}
+  </main>
+
+  <!-- Right aside -->
+  <aside class="aside-column">
+    {% block aside %}{% endblock %}
+  </aside>
+
+</div>
+
+<!-- Mobile bottom nav -->
+<nav class="bottom-nav">
+  <a href="{% url 'home' %}" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>
+    <span class="nav-icon">🏠</span>Home
+  </a>
+  <a href="{% url 'search' %}" {% if request.resolver_match.url_name == 'search' %}class="active"{% endif %}>
+    <span class="nav-icon">🔍</span>Search
+  </a>
+  <a href="{% url 'notifications' %}" {% if request.resolver_match.url_name == 'notifications' %}class="active"{% endif %}>
+    <span class="nav-icon">🔔</span>
+    {% if unread_notifications_count > 0 %}<span class="badge-dot"></span>{% endif %}
+    Alerts
+  </a>
+  <a href="{% url 'profile' username=request.user.username %}">
+    <span class="nav-icon">👤</span>Profile
+  </a>
+</nav>
+{% endblock %}
